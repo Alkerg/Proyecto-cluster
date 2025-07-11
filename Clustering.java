@@ -15,6 +15,7 @@ import java.util.*;
 public class Clustering {
 
     static int[][] matrizOriginal = new int[20][20]; // matriz con las dimensiones de los datos
+    static double[][] matrizTransformada = new double[20][20];
     static int filasActuales = 20;
 
   
@@ -141,10 +142,10 @@ public class Clustering {
     }
 
     public static void tareaTransformacion() {
+        // Normaliza los datos de la matrizOriginal y los guarda en matrizTransformada
         System.out.println("Ejecutando tarea: TRANSFORMACION");
         
         int[][] matrizOriginal = new int[20][20];
-        double[][] matrizTransformada = new double[20][20];
 
         int min = Integer.MAX_VALUE;
         int max = Integer.MIN_VALUE;
@@ -172,6 +173,8 @@ public class Clustering {
             for (int i = 0; i < 20; i++) {
                 for (int j = 0; j < 20; j++) {
                     double normalizado = (max == min) ? 0.0 : (matrizOriginal[i][j] - min) / (double)(max - min);
+                    matrizTransformada[i][j] = normalizado;
+                    
                     writer.write(String.format("%.6f", normalizado));
                     if (j < 19) writer.write("\t");
                 }
@@ -185,14 +188,14 @@ public class Clustering {
 
     public static void tareaVisualizacion()
     {
+        // Imprime la matriz transformada en consola
         System.out.println("\n ========================================VISUALIZACION========================================");
         for(int i = 0; i < 20; i++)
         {
             System.out.print("| ");
             for(int j = 0; j < 20; j++)
             {
-                int element = matrizOriginal[i][j];
-                System.out.print(element + "  ");
+                System.out.printf("%.4f  ", matrizTransformada[i][j]);
             }
             System.out.println("|");
         }
@@ -205,8 +208,12 @@ public class Clustering {
         String ip = getAddressIP();
         System.out.println("IP detectada: " + ip);
 
-        //List<String> tareas = obtenerTareas(ip);
-        List<String> tareas = Arrays.asList("LEER", "DEPURACION", "TRANSFORMACION", "VISUALIZACION");
+        List<String> tareas = obtenerTareas(ip);
+        
+        //Array con tareas para pruebas, en el cluster se asignan las tareas de acuerdo a la IP
+        //con la linea anterior
+        //List<String> tareas = Arrays.asList("LEER", "DEPURACION", "TRANSFORMACION", "VISUALIZACION");
+        
         if (tareas.isEmpty()) {
             System.out.println("No se encontraron tareas para esta IP.");
         } else {
