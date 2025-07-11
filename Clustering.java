@@ -14,11 +14,14 @@ import java.util.*;
 
 public class Clustering {
 
-    static int[][] matrizOriginal = new int[20][20]; // matriz con las dimensiones de los datos
-    static double[][] matrizTransformada = new double[20][20];
-    static int filasActuales = 20;
+    static final int FILAS = 20;
+    static final int COLUMNAS = 20;
 
-  
+    static int[][] matrizOriginal = new int[FILAS][COLUMNAS];
+    static double[][] matrizTransformada = new double[FILAS][COLUMNAS];
+
+
+
     public static String getAddressIP() {
         // Obtiene la dirección IP local de la máquina
         try {
@@ -29,7 +32,7 @@ public class Clustering {
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
-        return "127.0.0.1"; 
+        return "127.0.0.1";
     }
 
     public static List<String> obtenerTareas(String ip) {
@@ -61,7 +64,7 @@ public class Clustering {
         } else if (tarea.equals("TRANSFORMACION")) {
             tareaTransformacion();
         } else if (tarea.equals("MINERIA")) {
-            System.out.println("tareaMineria() - Aun no implementada");
+            tareaMineria();
         } else if (tarea.equals("VISUALIZACION")) {
             tareaVisualizacion();
         } else {
@@ -70,18 +73,17 @@ public class Clustering {
     }
 
     public static void tareaRead() {
-        // Lee el archivo data.txt y carga los datos en la matrizOriginal
         System.out.println("Ejecutando tarea: LEER");
         try (BufferedReader br = new BufferedReader(new FileReader("data.txt"))) {
             String linea;
             int fila = 0;
-            while ((linea = br.readLine()) != null && fila < 20) {
+            while ((linea = br.readLine()) != null && fila < FILAS) {
                 String[] partes = linea.split("\t");
-                if (partes.length != 20) {
+                if (partes.length != COLUMNAS) {
                     System.out.println("Error en formato en la fila " + fila);
                     continue;
                 }
-                for (int col = 0; col < 20; col++) {
+                for (int col = 0; col < COLUMNAS; col++) {
                     matrizOriginal[fila][col] = Integer.parseInt(partes[col].trim());
                 }
                 fila++;
@@ -94,12 +96,13 @@ public class Clustering {
         }
     }
 
+
     public static void tareaDepuracion() {
         // Reemplaza los valores negativos en la matrizOriginal por ceros
         System.out.println("Ejecutando tarea: DEPURACION");
 
-        for (int i = 0; i < filasActuales; i++) {
-            for (int j = 0; j < 20; j++) {
+        for (int i = 0; i < FILAS; i++) {
+            for (int j = 0; j < COLUMNAS; j++) {
                 if (matrizOriginal[i][j] < 0) {
                     matrizOriginal[i][j] = 0;
                 }
@@ -114,8 +117,8 @@ public class Clustering {
     public static void guardarMatrizDepurada(String nombreArchivo) {
         // Guarda la matriz depurada en un archivo
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(nombreArchivo))) {
-            for (int i = 0; i < filasActuales; i++) {
-                for (int j = 0; j < 20; j++) {
+            for (int i = 0; i < FILAS; i++) {
+                for (int j = 0; j < COLUMNAS; j++) {
                     writer.write(matrizOriginal[i][j] + (j < 19 ? "\t" : ""));
                 }
                 writer.newLine();
@@ -126,11 +129,11 @@ public class Clustering {
         }
     }
 
-     public static void guardarMatrizLeida(String nombreArchivo) {
+    public static void guardarMatrizLeida(String nombreArchivo) {
         // Guarda la matriz leída en un archivo
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(nombreArchivo))) {
-            for (int i = 0; i < filasActuales; i++) {
-                for (int j = 0; j < 20; j++) {
+            for (int i = 0; i < FILAS; i++) {
+                for (int j = 0; j < COLUMNAS; j++) {
                     writer.write(matrizOriginal[i][j] + (j < 19 ? "\t" : ""));
                 }
                 writer.newLine();
@@ -144,8 +147,7 @@ public class Clustering {
     public static void tareaTransformacion() {
         // Normaliza los datos de la matrizOriginal y los guarda en matrizTransformada
         System.out.println("Ejecutando tarea: TRANSFORMACION");
-        
-        int[][] matrizOriginal = new int[20][20];
+
 
         int min = Integer.MAX_VALUE;
         int max = Integer.MIN_VALUE;
@@ -174,7 +176,7 @@ public class Clustering {
                 for (int j = 0; j < 20; j++) {
                     double normalizado = (max == min) ? 0.0 : (matrizOriginal[i][j] - min) / (double)(max - min);
                     matrizTransformada[i][j] = normalizado;
-                    
+
                     writer.write(String.format("%.6f", normalizado));
                     if (j < 19) writer.write("\t");
                 }
@@ -190,18 +192,54 @@ public class Clustering {
     {
         // Imprime la matriz transformada en consola
         System.out.println("\n ========================================VISUALIZACION========================================");
-        for(int i = 0; i < 20; i++)
+        for(int i = 0; i < FILAS; i++)
         {
             System.out.print("| ");
-            for(int j = 0; j < 20; j++)
+            for(int j = 0; j < COLUMNAS; j++)
             {
                 System.out.printf("%.4f  ", matrizTransformada[i][j]);
             }
             System.out.println("|");
         }
-        System.out.println("");      
+        System.out.println("");
     }
 
+
+    public static void tareaMineria() {
+        System.out.println("Ejecutando tarea: MINERIA");
+
+        // Validar que la matriz esté cargada
+        boolean vacia = true;
+        for (int i = 0; i < FILAS && vacia; i++) {
+            for (int j = 0; j < COLUMNAS && vacia; j++) {
+                if (matrizTransformada[i][j] != 0.0) {
+                    vacia = false;
+                }
+            }
+        }
+        if (vacia) {
+            System.out.println("La matriz transformada está vacía. Asegúrate de ejecutar TRANSFORMACION antes.");
+            return;
+        }
+
+        // Calcular distancia entre algunos pares de filas
+        for (int i = 0; i < Math.min(5, FILAS); i++) {
+            for (int j = i + 1; j < Math.min(5, FILAS); j++) {
+                double distancia = calcularDistancia(matrizTransformada[i], matrizTransformada[j]);
+                System.out.printf("Distancia entre fila %d y fila %d: %.4f%n", i, j, distancia);
+            }
+        }
+
+        System.out.println("Minería simple completada.");
+    }
+
+    public static double calcularDistancia(double[] a, double[] b) {
+        double suma = 0.0;
+        for (int i = 0; i < a.length; i++) {
+            suma += Math.pow(a[i] - b[i], 2);
+        }
+        return Math.sqrt(suma);
+    }
 
 
     public static void main(String[] args) {
@@ -209,11 +247,11 @@ public class Clustering {
         System.out.println("IP detectada: " + ip);
 
         List<String> tareas = obtenerTareas(ip);
-        
+
         //Array con tareas para pruebas, en el cluster se asignan las tareas de acuerdo a la IP
         //con la linea anterior
         //List<String> tareas = Arrays.asList("LEER", "DEPURACION", "TRANSFORMACION", "VISUALIZACION");
-        
+
         if (tareas.isEmpty()) {
             System.out.println("No se encontraron tareas para esta IP.");
         } else {
