@@ -1,5 +1,5 @@
-import java.net.*;
 import java.io.*;
+import java.net.*;
 import java.util.*;
 
 // Archivo ejecutor de tareas del cluster, este archivo
@@ -41,7 +41,7 @@ public class Clustering {
         try (BufferedReader br = new BufferedReader(new FileReader("Asignaciones.txt"))) {
             String linea;
             while ((linea = br.readLine()) != null) {
-                String[] partes = linea.split("=");
+                String[] partes = linea.split("-");
                 if (partes[0].trim().equals(ip)) {
                     String[] lista = partes[1].split(",");
                     for (String t : lista) {
